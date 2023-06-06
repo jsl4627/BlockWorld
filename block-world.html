@@ -1,0 +1,122 @@
+<html>
+<head>
+    <title>Block World</title>
+   
+     <link rel="icon" href="data:,">
+   
+    <!-- include vertex shaders -->
+
+    <script id="wireframe-V" type="x-shader/x-vertex">
+    #version 300 es
+    precision mediump float;
+
+    in vec3 aVertexPosition; // in model coords
+    in vec2 aUV;    // u-v coordinates
+
+    out vec2 theUV;  // pass uv's onto the fragment shader
+    
+    uniform vec3 theta;
+      
+     uniform mat4 modelT;
+
+     uniform mat4 viewT; 
+
+     uniform mat4 projT; 
+      
+    void main()
+    {
+        vec3 angles = radians( theta );
+        vec3 c = cos( angles );
+        vec3 s = sin( angles );
+
+        mat4 rx = mat4 ( 1.0,  0.0,  0.0,  0.0,
+                         0.0,  c.x,  s.x,  0.0,
+                         0.0, -s.x,  c.x,  0.0,
+                         0.0,  0.0,  0.0,  1.0 );
+
+        mat4 ry = mat4 ( c.y,  0.0, -s.y,  0.0,
+                         0.0,  1.0,  0.0,  0.0,
+                         s.y,  0.0,  c.y,  0.0,
+                         0.0,  0.0,  0.0,  1.0 );
+
+         mat4 rz = mat4 ( c.z,  s.z,  0.0,  0.0,
+                         -s.z,  c.z,  0.0,  0.0,
+                         0.0,  0.0,  1.0,  0.0,
+                         0.0,  0.0,  0.0,  1.0 );
+
+                         
+        theUV = vec2( aUV.x, aUV.y); 
+        
+
+        gl_Position = rz * ry * rx * projT * viewT * modelT * vec4 (aVertexPosition, 1.0);
+    }
+
+    </script>
+
+     <script id="wireframe-F" type="x-shader/x-fragment">
+         #version 300 es
+
+
+         precision lowp float;
+         
+	 // uvs passed in from vertex shader
+         in vec2 theUV;
+         
+         // the texture to use
+         uniform sampler2D theTexture;
+
+
+         // Color that is the result of this shader
+         out vec4 fragColor;
+
+         void main(void) {
+	     fragColor = texture (theTexture, theUV);
+         }
+
+     </script>
+     
+     <script type="text/javascript" src="gl-matrix-min.js"></script>
+    
+    <script type="text/javascript" src="./blockWorldMain.js"></script>
+    
+    <script type="text/javascript" src="./cgIShape.js"></script>
+    <script type="text/javascript" src="./myShapes-min.js"></script>
+    
+    <script type="text/javascript" src="./event.js"></script>
+    
+    <img id="swamp-texture" src="swamp.jpg" style="display: none;"> </img>
+
+  <script type="text/javascript">
+    window.onload = init;
+  </script>
+</head>
+
+<body>
+  <h1></h1>
+  <table>
+      <tr>
+          <td><canvas id="webgl-canvas" width="500" height="500">
+            Your browser does not support the HTML5 canvas element.
+          </canvas></td>
+          
+          <td>
+              <h3>Controls</h3>
+              
+              <table border="1">
+              <tbody>
+		<tr> 
+			<td>f</td> 
+			<td>move forward</td> 
+		</tr>
+              </tbody>
+              </table>
+              
+          </td>
+      </tr>
+  </table>
+  
+  
+
+</body>
+</html>
+
